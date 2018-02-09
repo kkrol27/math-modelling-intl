@@ -120,3 +120,16 @@ Java Model Exception: Java Model Status [<project root> [in WaveSimulator] is no
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1499)
 !SUBENTRY 1 org.eclipse.jdt.core 4 1006 2018-02-08 19:52:47.786
 !MESSAGE <project root> [in WaveSimulator] is not on its project's build path
+!SESSION 2018-02-09 12:58:52.473 -----------------------------------------------
+eclipse.buildId=4.7.2.M20171130-0510
+java.version=1.8.0_161
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/kylekrol/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/kylekrol/.eclipse_keyring
+
+!ENTRY org.eclipse.core.resources 2 10035 2018-02-09 12:59:17.582
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.
+
+!ENTRY org.eclipse.core.net 1 0 2018-02-09 12:59:18.813
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences

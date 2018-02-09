@@ -1,0 +1,5 @@
+function s = wavespectrum(w, h)
+
+    w = (9.81*9.81*8.1/1000) * (1/w.^5) .* exp(-.032 * ()^2)
+
+end

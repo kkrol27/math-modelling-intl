@@ -2,10 +2,13 @@ package main;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import maths.Mat4f;
 import maths.Vec3f;
 import maths.Vec4f;
+import waves.Wave;
 import waves.WaveShader;
 
 public class Main {
@@ -34,9 +37,9 @@ public class Main {
 	
 	/** Generates the camera matrix for the specified camera parameters */
 	private static Mat4f view_mat4(Vec3f pos, float yaw, float pitch) {
-		Mat4f camera = new Mat4f().setTranslation(pos);
-		camera.addYRotation(-pitch);
+		Mat4f camera = new Mat4f().setTranslation(pos.getScaledBy(-1.0f));
 		camera.addYRotation(-yaw);
+		camera.addXRotation(-pitch);
 		return camera;
 	}
 
@@ -75,21 +78,22 @@ public class Main {
 		// ----------
 		// Start GL and Scene initialization
 		
-		GL11.glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glCullFace(GL11.GL_BACK);
+		//GL11.glEnable(GL11.GL_CULL_FACE);
+        //GL11.glCullFace(GL11.GL_BACK);
 		
-		Vec3f cam_pos = new Vec3f(0.0f, 10.0f, 0.0f);
+		Vec3f cam_pos = new Vec3f(0.0f, 7.5f, 0.0f);
 		float cam_yaw = PI / 2.0f;
 		float cam_pit = 0.0f;
 		
 		Mat4f view, proj = proj_mat4();
 		
+		Wave wave = new Wave(0.6d, 10.0, 100, 8.0d, 2.0d * Math.PI / 10.0d, 100, 50.0d, -5.0d, -5.0d);
+		
 		WaveShader sh = new WaveShader();
 		sh.start();
 		sh.load_proj_mat(proj);
-		
 		
 		// End GL and Scene initialization
 		// -----
@@ -100,17 +104,27 @@ public class Main {
 		while(!GLFW.glfwWindowShouldClose(window)) {
 			
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == 1)
-				cam_yaw -= 0.01f;
+				cam_yaw -= 0.1f;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_A) == 1)
-				cam_yaw += 0.01f;
+				cam_yaw += 0.1f;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == 1)
-				cam_pit -= 0.01f;
+				cam_pit -= 0.1f;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == 1)
-				cam_pit += 0.01f;
+				cam_pit += 0.1f;
 			view = view_mat4(cam_pos, cam_yaw, cam_pit);
 			sh.load_view_mat(view);
 			
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+			
+			GL30.glBindVertexArray(wave.vao());
+			GL20.glEnableVertexAttribArray(0);
+			GL20.glEnableVertexAttribArray(1);
+			
+			GL11.glDrawElements(GL11.GL_TRIANGLES, wave.count(), GL11.GL_UNSIGNED_INT, 0);
+			
+			GL20.glDisableVertexAttribArray(1);
+			GL20.glDisableVertexAttribArray(0);
+			GL30.glBindVertexArray(0);
 			
 			GLFW.glfwSwapBuffers(window);
 			GLFW.glfwPollEvents();
