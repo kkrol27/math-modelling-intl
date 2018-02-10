@@ -31,11 +31,11 @@ public class Wave {
 		// Spectrum
 		Ocean ocean = new Ocean();
 		// Calm ocean
-		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 1.5d), 2.0d));
-		ocean.add(new Spectrum(Math.PI / 2.0f, 0.25d));
-		// Rough ocean
 		// ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 3.0d), 3.0d));
-		// ocean.add(new Spectrum(Math.PI / 2.0f, 2.0d));
+		// ocean.add(new Spectrum(Math.PI / 2.0f, 1.0d));
+		// Rough ocean
+		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 35.0d), 35.0d));
+		ocean.add(new Spectrum(Math.PI / 4.0f, 7.0d));
 		
 		// Wave components
 		double[][] wave_k = new double[105][2];
@@ -57,7 +57,8 @@ public class Wave {
 				n++;
 			}
 		}
-		print_wave("calm.txt", wave_a, wave_k, wave_d);
+		// print_wave("calm.txt", wave_a, wave_k, wave_d);
+		print_wave("rought.txt", wave_a, wave_k, wave_d);
 		
 		// Generate mesh
 		float[] mesh_p = new float[3 * vc * vc];
@@ -168,7 +169,7 @@ public class Wave {
 			double d = 0.0d;
 			for(Spectrum s:spectra)
 				d += s.eval(w);
-			d = d * Math.pow(Math.cos(a / 2.0d), 9);
+			d = d * 0.7331d * Math.pow(Math.cos(a / 2.0d), 9);
 			return d;
 		}
 	}
