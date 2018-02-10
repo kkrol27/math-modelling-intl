@@ -83,13 +83,13 @@ public class Main {
 		//GL11.glEnable(GL11.GL_CULL_FACE);
         //GL11.glCullFace(GL11.GL_BACK);
 		
-		Vec3f cam_pos = new Vec3f(0.0f, 7.5f, 0.0f);
+		Vec3f cam_pos = new Vec3f(0.0f, 5.0f, 0.0f);
 		float cam_yaw = PI / 2.0f;
 		float cam_pit = 0.0f;
 		
 		Mat4f view, proj = proj_mat4();
 		
-		Wave wave = new Wave(0.6d, 10.0, 100, 8.0d, 2.0d * Math.PI / 10.0d, 100, 50.0d, -5.0d, -5.0d);
+		Wave wave = new Wave(0.5d, 2.0d, 300, 30.0d, -15.0d, -15.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();

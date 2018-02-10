@@ -1,7 +1,8 @@
 package waves;
 
+import java.util.Random;
+
 import main.GLL;
-import maths.Vec3f;
 
 /** Class responsible for constructing a wave mesh from ocean spectra */
 public class Wave {
@@ -12,38 +13,36 @@ public class Wave {
 	private int count;
 	
 	/**
-	 * Creates a new wave mesh based on deep ocean spectra.
+	 * Generates a wave and a corresponding mesh.
 	 * 
-	 * @param fo
-	 * 		initial integration frequency
-	 * @param ff
-	 * 		final integration frequency
-	 * @param fc
-	 * 		frequency component count
-	 * @param hm
-	 * 		spectrum amplitude
 	 * @param wm
-	 * 		modal angular frequency
+	 * 		
+	 * @param hm
 	 * @param vc
-	 * 		wave mesh vertex count along a single dimension
 	 * @param d
-	 * 		wave mesh dimension
 	 * @param xo
-	 * 		initial x displacement
 	 * @param zo
-	 * 		initial z displacement
 	 */
-	public Wave(double fo, double ff, int fc, double hm, double wm, int vc, double d, double xo, double zo) {
+	public Wave(double wm, double hm, int vc, double d, double xo, double zo) {
 		// Wave components
-		double[] wave_k = new double[fc];
-		double[] wave_a = new double[fc];
+		double[][] wave_k = new double[15][2];
+		double[] wave_a = new double[15];
+		double[] wave_d = new double[15];
 		
 		// Calculate wave components
-		double df = (ff - fo) / ((double) fc);
-		for(int i = 0; i < fc; i++) {
-			double fi = (((double) i) + 0.5d) * df;
-			wave_a[i] = df * spectrum(fi, hm);//spectrum(wm, hm, fi);
-			wave_k[i] = 1.5613099917d / fi;
+		int n = 0;
+		Random rand = new Random();
+		for(int w = 0; w < 3; w++) {
+			for(int t = 0; t < 5; t++) {
+				double ti = ((double)(t - 1)) * 0.5d;
+				double wi = ((double) w) * 0.2d + wm;
+				double ks = 9.81d / (2.0d * Math.PI * wi);
+				wave_d[n] = 2.0d * Math.PI * rand.nextDouble();
+				wave_a[n] = spectrum(wi, ti, hm);
+				wave_k[n][0] = ks * Math.cos(wi);
+				wave_k[n][1] = -ks * Math.sin(wi);
+				n++;
+			}
 		}
 		
 		// Generate mesh
@@ -53,14 +52,14 @@ public class Wave {
 			for(int k = 0; k < vc; k++) {
 				double x = xo +(((double) i) / ((double)(vc - 1))) * d;
 				double z = zo +(((double) k) / ((double)(vc - 1))) * d;
-				int n = 3 * (i + vc * k);
+				n = 3 * (i + vc * k);
 				// Mesh coordinates
 				mesh_p[n + 0] = (float) x;
-				mesh_p[n + 1] = vert_disp(wave_a, wave_k, x);
+				mesh_p[n + 1] = (float) displacement(wave_a, wave_k, wave_d, xo, zo, x, z);
 				mesh_p[n + 2] = (float) z;
 				// Mesh normal vector
-				double dx1 = 0.001d, dy1 = vert_disp(wave_a, wave_k, x + 0.001d) - mesh_p[n + 1], dz1 = 0.0d;
-				double dx2 = 0.0d, dy2 = 0.0d, dz2 = 0.001d;
+				double dx1 = 0.001d, dy1 = displacement(wave_a, wave_k, wave_d, xo, zo, x + 0.001d, z) - mesh_p[n + 1], dz1 = 0.0d;
+				double dx2 = 0.0d, dy2 = displacement(wave_a, wave_k, wave_d, xo, zo, x, z + 0.001d) - mesh_p[n + 1], dz2 = 0.001d;
 				double xn = dy2 * dz1 - dy1 * dz2, yn = dx1 * dz2 - dx2 * dz1, zn = dx2 * dy1 - dx1 * dy2;
 				double nm = Math.sqrt(xn*xn + yn*yn + zn*zn);
 				mesh_n[n + 0] = (float)(xn / nm);
@@ -70,7 +69,7 @@ public class Wave {
 		}
 		
 		// Generate index array
-		int n = 0;
+		n = 0;
 		int[] mesh_i = new int[6 * (vc - 1) * (vc - 1)];
 		for(int i = 0; i < vc - 1; i++) {
 			for(int k = 0; k < vc - 1; k++) {
@@ -99,46 +98,19 @@ public class Wave {
 		return count;
 	}
 	
-	/** Calculates wave displacement for the specified coordinate */
-	private static float vert_disp(double[] a, double[] k, double x) {
-		double d = 0.0d;
+	/** Returns specturm amplitude */
+	private static double spectrum(double w, double a, double h)  {
+		double c = 8.1d * 9.81d * 9.81d / (1000.0d * Math.pow(w, 5));
+		double e = Math.exp(-0.032d * 9.81d * 9.81d / (h * h * Math.pow(w, 4.0d)));
+		double d = 2.239199d * Math.pow(Math.cos(a / 2.0d), 31);
+		return Math.sqrt(2.0d * c * e * d);
+	}
+	
+	/** Returns the water displacement */
+	private static double displacement(double[] a, double[][] k, double[] d, double xo, double zo, double x, double z) {
+		double v = 0.0d;
 		for(int i = 0; i < a.length; i++)
-			d += a[i] * Math.sin(k[i] * x);
-		return (float) d;
-	}
-	
-	/*
-	private static double spectrum(double wm, double hm, double w) {
-		double s = (5.0d / 16.0d) * (Math.pow(wm, 4.0d) / Math.pow(w, 5.0d)) * Math.pow(hm, 0.66666667d)
-				   * Math.exp(-5.0d * Math.pow(wm, 4.0d) / (4.0d * Math.pow(w, 4.0d)));
-		System.out.println(w + "\t" + s);
-		return s;
-	}
-	*/
-	/** Returns frequency spectrum function values */
-	private static double spectrum(double w, double h) {
-		double coeff = 8.1d * 9.81d * 9.81d / (1000.0d * Math.pow(w, 5));
-		double s = coeff * Math.exp(-3.079552d * Math.pow(h, -0.666666667) * Math.pow(w, -4.0d));
-		return Math.sqrt(s);
-	}
-	
-	/** Complex number */
-	private static class CNum {
-		
-		/** Elements */
-		private double r, c;
-		
-		/** Creates a new complex number */
-		public CNum(double r, double c) {
-			this.r = r;
-			this.c = c;
-		}
-		
-		/** Adds two complex numbers */
-		public CNum add(CNum n) {
-			return new CNum(r + n.r, c + n.c);
-		}
-		
-		
+			v += a[i] * Math.cos(k[i][0] * (x - xo ) + k[i][1] * (z - zo) - d[i]);
+		return v;
 	}
 }
