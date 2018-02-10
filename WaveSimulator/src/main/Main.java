@@ -80,8 +80,8 @@ public class Main {
 		
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		//GL11.glEnable(GL11.GL_CULL_FACE);
-        //GL11.glCullFace(GL11.GL_BACK);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glCullFace(GL11.GL_BACK);
 		
 		Vec3f cam_pos = new Vec3f(0.0f, 5.0f, 0.0f);
 		float cam_yaw = PI / 2.0f;
@@ -89,7 +89,7 @@ public class Main {
 		
 		Mat4f view, proj = proj_mat4();
 		
-		Wave wave = new Wave(0.5d, 2.0d, 300, 30.0d, -15.0d, -15.0d);
+		Wave wave = new Wave(600, 60.0d, -30.0d, -30.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();

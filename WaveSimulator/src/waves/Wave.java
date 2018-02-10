@@ -1,5 +1,7 @@
 package waves;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import main.GLL;
@@ -12,38 +14,64 @@ public class Wave {
 	/** Wave vertex count */
 	private int count;
 	
+	private static Ocean get_calm() {
+		Ocean ocean = new Ocean();
+		ocean.add(new Spectrum(0.5d, 1.0d));
+		return ocean;
+	}
+	
 	/**
 	 * Generates a wave and a corresponding mesh.
 	 * 
-	 * @param wm
-	 * 		
+	 * @param wm	
 	 * @param hm
 	 * @param vc
 	 * @param d
 	 * @param xo
 	 * @param zo
 	 */
-	public Wave(double wm, double hm, int vc, double d, double xo, double zo) {
+	public Wave(int vc, double d, double xo, double zo) {
+		// Spectrum
+		Ocean ocean = new Ocean();
+		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 5.0d), 1.5d));
+		ocean.add(new Spectrum(Math.PI / 2.0d, 0.01d));
+		ocean.add(new Spectrum(5.0d, 0.0d));
+		
 		// Wave components
-		double[][] wave_k = new double[15][2];
-		double[] wave_a = new double[15];
-		double[] wave_d = new double[15];
+		double[][] wave_k = new double[50][2];
+		double[] wave_a = new double[50];
+		double[] wave_d = new double[50];
 		
 		// Calculate wave components
 		int n = 0;
 		Random rand = new Random();
-		for(int w = 0; w < 3; w++) {
-			for(int t = 0; t < 5; t++) {
-				double ti = ((double)(t - 1)) * 0.5d;
-				double wi = ((double) w) * 0.2d + wm;
-				double ks = 9.81d / (2.0d * Math.PI * wi);
-				wave_d[n] = 2.0d * Math.PI * rand.nextDouble();
-				wave_a[n] = spectrum(wi, ti, hm);
-				wave_k[n][0] = ks * Math.cos(wi);
-				wave_k[n][1] = -ks * Math.sin(wi);
+		for(int w = 0; w < 50; w++) {
+			double ti = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
+			double wi = ((double) w) * 0.1d + 0.5;
+			double ks = wi /  9.81d;
+			wave_d[n] = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
+			wave_a[n] = ocean.eval(wi, ti);
+			
+			System.out.println(wave_a[n]);
+			
+			wave_k[n][0] = ks * Math.cos(ti);
+			wave_k[n][1] = -ks * Math.sin(ti);
+			n++;
+		}
+		
+		/*
+		for(int w = 0; w < 5; w++) {
+			for(int t = -4; t < 5; t++) {
+				double ti = ((double) t) * 0.4d;
+				double wi = ((double) w) * 0.1d + 0.5;
+				double ks = wi / 9.81d;
+				wave_d[n] = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
+				wave_a[n] = 0.4d * ocean.eval(wi, ti);
+				wave_k[n][0] = ks * Math.cos(ti);
+				wave_k[n][1] = -ks * Math.sin(ti);
 				n++;
 			}
-		}
+		}*/
 		
 		// Generate mesh
 		float[] mesh_p = new float[3 * vc * vc];
@@ -98,19 +126,56 @@ public class Wave {
 		return count;
 	}
 	
-	/** Returns specturm amplitude */
-	private static double spectrum(double w, double a, double h)  {
-		double c = 8.1d * 9.81d * 9.81d / (1000.0d * Math.pow(w, 5));
-		double e = Math.exp(-0.032d * 9.81d * 9.81d / (h * h * Math.pow(w, 4.0d)));
-		double d = 2.239199d * Math.pow(Math.cos(a / 2.0d), 31);
-		return Math.sqrt(2.0d * c * e * d);
-	}
-	
 	/** Returns the water displacement */
 	private static double displacement(double[] a, double[][] k, double[] d, double xo, double zo, double x, double z) {
 		double v = 0.0d;
 		for(int i = 0; i < a.length; i++)
-			v += a[i] * Math.cos(k[i][0] * (x - xo ) + k[i][1] * (z - zo) - d[i]);
+			v += a[i] * Math.cos(k[i][0] * (x - xo) + k[i][1] * (z - zo) - d[i]);
 		return v;
+	}
+	
+	/** Contains a list of spectra */
+	private static class Ocean {
+		 
+		/** This ocean's spectra */
+		private List<Spectrum> spectra;
+		
+		/** Generates a new ocean */
+		private Ocean() {
+			this.spectra = new ArrayList<Spectrum>();
+		}
+		
+		/** Adds a new spectrum to this ocean */
+		private void add(Spectrum s) {
+			spectra.add(s);
+		}
+		
+		/** Evaluates the spectrum */
+		private double eval(double w, double a) {
+			double d = 0.0d;
+			for(Spectrum s:spectra)
+				d += s.eval(w);
+			d = d * Math.cos(a / 2.0d);
+			return d;
+		}
+	}
+	
+	/** Represents an ocean spectrum */
+	private static class Spectrum {
+		
+		/** Spectrum function constants */
+		private double c, e;
+		
+		/** Creates a new spectrum */
+		private Spectrum(double w, double h) {
+			this.c = 1.25d * Math.pow(w, 4.0d) * h * h / 4.0d;
+			this.e = -1.25d * Math.pow(w, 4.0d);
+		}
+		
+		/** Evaluates this spectra */
+		public double eval(double w) {
+			double d = Math.sqrt(2.0d * c * Math.exp(e / Math.pow(w, 4.0d)) / Math.pow(w, 5.0d));
+			return (Double.isNaN(d) ? 0.0d : d);
+		}
 	}
 }
