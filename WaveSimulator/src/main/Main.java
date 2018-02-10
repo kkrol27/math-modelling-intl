@@ -78,7 +78,7 @@ public class Main {
 		// ----------
 		// Start GL and Scene initialization
 		
-		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		GL11.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glCullFace(GL11.GL_BACK);
@@ -89,7 +89,7 @@ public class Main {
 		
 		Mat4f view, proj = proj_mat4();
 		
-		Wave wave = new Wave(600, 60.0d, -30.0d, -30.0d);
+		Wave wave = new Wave(600, 120.0d, -10.0d, -10.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();
@@ -103,14 +103,20 @@ public class Main {
 		
 		while(!GLFW.glfwWindowShouldClose(window)) {
 			
+			final float CAM_RT = 0.05f;
+			final float CAM_MV = 0.05f;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == 1)
-				cam_yaw -= 0.1f;
+				cam_yaw -= CAM_RT;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_A) == 1)
-				cam_yaw += 0.1f;
+				cam_yaw += CAM_RT;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == 1)
-				cam_pit -= 0.1f;
+				cam_pit -= CAM_RT;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == 1)
-				cam_pit += 0.1f;
+				cam_pit += CAM_RT;
+			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_E) == 1)
+				cam_pos.y += CAM_MV;
+			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_Q) == 1)
+				cam_pos.y -= CAM_MV;
 			view = view_mat4(cam_pos, cam_yaw, cam_pit);
 			sh.load_view_mat(view);
 			

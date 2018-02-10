@@ -1,5 +1,0 @@
-function s = wavespectrum(w, h)
-    
-    c = (8.1e-3) * 9.81^2 ./ w.^5
-
-end

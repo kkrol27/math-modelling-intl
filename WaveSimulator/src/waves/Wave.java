@@ -1,5 +1,8 @@
 package waves;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,12 +17,6 @@ public class Wave {
 	/** Wave vertex count */
 	private int count;
 	
-	private static Ocean get_calm() {
-		Ocean ocean = new Ocean();
-		ocean.add(new Spectrum(0.5d, 1.0d));
-		return ocean;
-	}
-	
 	/**
 	 * Generates a wave and a corresponding mesh.
 	 * 
@@ -33,45 +30,34 @@ public class Wave {
 	public Wave(int vc, double d, double xo, double zo) {
 		// Spectrum
 		Ocean ocean = new Ocean();
-		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 5.0d), 1.5d));
-		ocean.add(new Spectrum(Math.PI / 2.0d, 0.01d));
-		ocean.add(new Spectrum(5.0d, 0.0d));
+		// Calm ocean
+		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 1.5d), 2.0d));
+		ocean.add(new Spectrum(Math.PI / 2.0f, 0.25d));
+		// Rough ocean
+		// ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 3.0d), 3.0d));
+		// ocean.add(new Spectrum(Math.PI / 2.0f, 2.0d));
 		
 		// Wave components
-		double[][] wave_k = new double[50][2];
-		double[] wave_a = new double[50];
-		double[] wave_d = new double[50];
+		double[][] wave_k = new double[105][2];
+		double[] wave_a = new double[105];
+		double[] wave_d = new double[105];
 		
 		// Calculate wave components
 		int n = 0;
 		Random rand = new Random();
-		for(int w = 0; w < 50; w++) {
-			double ti = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
-			double wi = ((double) w) * 0.1d + 0.5;
-			double ks = wi /  9.81d;
-			wave_d[n] = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
-			wave_a[n] = ocean.eval(wi, ti);
-			
-			System.out.println(wave_a[n]);
-			
-			wave_k[n][0] = ks * Math.cos(ti);
-			wave_k[n][1] = -ks * Math.sin(ti);
-			n++;
-		}
-		
-		/*
-		for(int w = 0; w < 5; w++) {
-			for(int t = -4; t < 5; t++) {
+		for(int w = 0; w < 15; w++) {
+			for(int t = -3; t < 4; t++) {
 				double ti = ((double) t) * 0.4d;
-				double wi = ((double) w) * 0.1d + 0.5;
-				double ks = wi / 9.81d;
+				double wi = ((double) w) * 0.2d + 0.5d;
+				double ks = 2.0d * Math.PI * wi / 9.81d;
 				wave_d[n] = 2.0d * Math.PI * (rand.nextDouble() - 0.5d);
-				wave_a[n] = 0.4d * ocean.eval(wi, ti);
+				wave_a[n] = 0.08d * ocean.eval(wi, ti);
 				wave_k[n][0] = ks * Math.cos(ti);
 				wave_k[n][1] = -ks * Math.sin(ti);
 				n++;
 			}
-		}*/
+		}
+		print_wave("calm.txt", wave_a, wave_k, wave_d);
 		
 		// Generate mesh
 		float[] mesh_p = new float[3 * vc * vc];
@@ -134,6 +120,33 @@ public class Wave {
 		return v;
 	}
 	
+	/** Prints out the current wave function information */
+	private static void print_wave(String name, double[] a, double[][] k, double[] d) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(name));
+			writer.write('[');
+			for(double n:a)
+				writer.write(n + ",");
+			writer.write("\n[");
+			for(double[] n:k)
+				writer.write(n[0] + "," + n[1] + ";");
+			writer.write("\n[");
+			for(double n:d)
+				writer.write(n + ",");
+		} catch(IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	/** Contains a list of spectra */
 	private static class Ocean {
 		 
@@ -155,7 +168,7 @@ public class Wave {
 			double d = 0.0d;
 			for(Spectrum s:spectra)
 				d += s.eval(w);
-			d = d * Math.cos(a / 2.0d);
+			d = d * Math.pow(Math.cos(a / 2.0d), 9);
 			return d;
 		}
 	}
