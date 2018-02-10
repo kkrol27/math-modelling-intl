@@ -1,14 +1,13 @@
 #version 410 core
 
 in vec3 wld_nrm;
-in float wld_y;
 
 out vec4 color;
 
-const vec3 blue = vec3(0.0, 0.467, 0.745);
+uniform mat3 vect_matrix;
 
 void main(void) {
 
-	color = vec4(blue * wld_nrm.y, 1.0);
+	color = vec4(vect_matrix * wld_nrm, 1.0);
 	
 }

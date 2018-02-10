@@ -31,8 +31,8 @@ public class Wave {
 		// Spectrum
 		Ocean ocean = new Ocean();
 		// Calm ocean
-		// ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 3.0d), 3.0d));
-		// ocean.add(new Spectrum(Math.PI / 2.0f, 1.0d));
+		//ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 3.0d), 3.0d));
+		//ocean.add(new Spectrum(Math.PI / 2.0f, 1.0d));
 		// Rough ocean
 		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 35.0d), 35.0d));
 		ocean.add(new Spectrum(Math.PI / 4.0f, 7.0d));

@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import maths.Mat3f;
 import maths.Mat4f;
 import maths.Vec3f;
 import maths.Vec4f;
@@ -19,9 +20,8 @@ public class Main {
 							 	RENDER_NEAR_PLANE = 0.1f,
 							 	RENDER_FAR_PLANE = 340.0f;
 	
-	private static Mat4f ortho_mat4() {
-		// TODO
-		return null;
+	private static Mat3f vect_mat3(float yaw) {
+		return new Mat3f().setYRotation(-yaw);
 	}
 	
 	private static Mat4f proj_mat4() {
@@ -84,16 +84,18 @@ public class Main {
         GL11.glCullFace(GL11.GL_BACK);
 		
 		Vec3f cam_pos = new Vec3f(0.0f, 5.0f, 0.0f);
-		float cam_yaw = PI / 2.0f;
+		float cam_yaw = - PI / 2.0f;
 		float cam_pit = 0.0f;
 		
 		Mat4f view, proj = proj_mat4();
+		Mat3f vect = new Mat3f().setIdentity();
 		
 		Wave wave = new Wave(600, 120.0d, -10.0d, -10.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();
 		sh.load_proj_mat(proj);
+		sh.load_vect_mat(vect);
 		
 		// End GL and Scene initialization
 		// -----
@@ -118,7 +120,9 @@ public class Main {
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_Q) == 1)
 				cam_pos.y -= CAM_MV;
 			view = view_mat4(cam_pos, cam_yaw, cam_pit);
+			vect = vect_mat3(cam_yaw);
 			sh.load_view_mat(view);
+			sh.load_vect_mat(vect);
 			
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			

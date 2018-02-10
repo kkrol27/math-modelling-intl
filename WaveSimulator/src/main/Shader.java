@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import maths.Mat3f;
 import maths.Mat4f;
 import maths.Vec3f;
 import maths.Vec4f;
@@ -70,6 +71,11 @@ public abstract class Shader {
 	/** Load Vec4f value to a uniform variable */
 	protected void load_vec(int loc, Vec4f v) {
 		GL20.glUniform4f(loc, v.x, v.y, v.z, v.w);
+	}
+	
+	/** Load Mat3f value to a uniform variable */
+	protected void load_mat(int loc, Mat3f m) {
+		GL20.glUniformMatrix3fv(loc, false, m.getMatrix());
 	}
 	
 	/** Load Mat4f value to a uniform variable */
