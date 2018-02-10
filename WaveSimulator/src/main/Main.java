@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Scanner;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -22,6 +24,15 @@ public class Main {
 	
 	private static Mat3f vect_mat3(float yaw) {
 		return new Mat3f().setYRotation(-yaw);
+	}
+	
+	private static Mat4f orth_mat4() {
+		return new Mat4f().setMatrix(
+				new Vec4f(1.0f / 80.0f, 0.0f, 0.0f, 0.0f),
+				new Vec4f(0.0f, 1.0f / 45.0f, 0.0f, 0.0f),
+				new Vec4f(0.0f, 0.0f, -2.0f / 199.0f, 0.0f),
+				new Vec4f(0.0f, 0.0f, -201.0f / 199.0f, 1.0f)
+			);
 	}
 	
 	private static Mat4f proj_mat4() {
@@ -78,19 +89,19 @@ public class Main {
 		// ----------
 		// Start GL and Scene initialization
 		
-		GL11.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glCullFace(GL11.GL_BACK);
 		
-		Vec3f cam_pos = new Vec3f(0.0f, 5.0f, 0.0f);
+		Vec3f cam_pos = new Vec3f(0.0f, 30.0f, 0.0f);
 		float cam_yaw = - PI / 2.0f;
-		float cam_pit = 0.0f;
+		float cam_pit = -5.0f * PI / 180.0f;
 		
 		Mat4f view, proj = proj_mat4();
 		Mat3f vect = new Mat3f().setIdentity();
 		
-		Wave wave = new Wave(600, 120.0d, -10.0d, -10.0d);
+		Wave wave = new Wave(2400, 240.0d, -80.0d, -80.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();
@@ -103,6 +114,7 @@ public class Main {
 		// -----
 		// Start Render Loop
 		
+		boolean ortho = false;
 		while(!GLFW.glfwWindowShouldClose(window)) {
 			
 			final float CAM_RT = 0.05f;
@@ -119,8 +131,18 @@ public class Main {
 				cam_pos.y += CAM_MV;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_Q) == 1)
 				cam_pos.y -= CAM_MV;
+			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_P) == 1)
+				ortho = !ortho;
+			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_O) == 1) {
+				float[] f = new float[2];
+				get_attitude(f);
+				cam_yaw = f[0];
+				cam_pit = f[1];
+				cam_pos = new Vec3f();
+			}
 			view = view_mat4(cam_pos, cam_yaw, cam_pit);
 			vect = vect_mat3(cam_yaw);
+			sh.load_proj_mat(ortho ? orth_mat4() : proj_mat4());
 			sh.load_view_mat(view);
 			sh.load_vect_mat(vect);
 			
@@ -153,5 +175,15 @@ public class Main {
 		// End Termination
 		// -----
 		
+	}
+	
+	/** Get attitude input from the user */
+	private static void get_attitude(float[] f) {
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Enter the yaw: ");
+		f[0] = scan.nextFloat() * PI / 180.0f;
+		System.out.print("Enter the pitch: ");
+		f[1] = scan.nextFloat() * PI / 180.0f;
+		scan.close();
 	}
 }
