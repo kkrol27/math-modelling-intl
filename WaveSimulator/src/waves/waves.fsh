@@ -8,6 +8,8 @@ uniform mat3 vect_matrix;
 
 void main(void) {
 
-	color = vec4(vect_matrix * wld_nrm, 1.0);
+	vec3 n = ((vect_matrix * wld_nrm) / 2.0) + 0.5;
+
+	color = vec4(n.xyz, 1.0);
 	
 }

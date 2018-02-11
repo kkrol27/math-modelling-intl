@@ -94,14 +94,14 @@ public class Main {
 		GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glCullFace(GL11.GL_BACK);
 		
-		Vec3f cam_pos = new Vec3f(0.0f, 30.0f, 0.0f);
+		Vec3f cam_pos = new Vec3f(0.0f, 40.0f, 0.0f);
 		float cam_yaw = - PI / 2.0f;
 		float cam_pit = -5.0f * PI / 180.0f;
 		
 		Mat4f view, proj = proj_mat4();
 		Mat3f vect = new Mat3f().setIdentity();
 		
-		Wave wave = new Wave(2400, 240.0d, -80.0d, -80.0d);
+		Wave wave = new Wave(2400, 240.0d, -50.0d, -50.0d);
 		
 		WaveShader sh = new WaveShader();
 		sh.start();
@@ -115,6 +115,7 @@ public class Main {
 		// Start Render Loop
 		
 		boolean ortho = false;
+		Scanner scan = new Scanner(System.in);
 		while(!GLFW.glfwWindowShouldClose(window)) {
 			
 			final float CAM_RT = 0.05f;
@@ -135,10 +136,10 @@ public class Main {
 				ortho = !ortho;
 			if(GLFW.glfwGetKey(window, GLFW.GLFW_KEY_O) == 1) {
 				float[] f = new float[2];
-				get_attitude(f);
+				get_attitude(f, scan);
 				cam_yaw = f[0];
 				cam_pit = f[1];
-				cam_pos = new Vec3f();
+				cam_pos = new Vec3f(0.0f, 40.0f, 0.0f);
 			}
 			view = view_mat4(cam_pos, cam_yaw, cam_pit);
 			vect = vect_mat3(cam_yaw);
@@ -168,6 +169,7 @@ public class Main {
 		// -----
 		// Start Termination
 		
+		scan.close();
 		sh.terminate();
 		GLL.terminate();
 		GLFW.glfwTerminate();
@@ -178,12 +180,10 @@ public class Main {
 	}
 	
 	/** Get attitude input from the user */
-	private static void get_attitude(float[] f) {
-		Scanner scan = new Scanner(System.in);
+	private static void get_attitude(float[] f, Scanner scan) {
 		System.out.print("Enter the yaw: ");
 		f[0] = scan.nextFloat() * PI / 180.0f;
 		System.out.print("Enter the pitch: ");
 		f[1] = scan.nextFloat() * PI / 180.0f;
-		scan.close();
 	}
 }
