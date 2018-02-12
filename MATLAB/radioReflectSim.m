@@ -1,9 +1,9 @@
 function p = radioReflectSim(normVecs)
-close all
+% close all
 % imgdata = readData();
 % normVecs = processData(imgdata);
 
-rayAngle = 70; %With respect to the vertical
+rayAngle = 80; %With respect to the vertical
 
 power = 100;
 numRays = 10000;
@@ -37,7 +37,9 @@ stateDists = zeros(numRays*4, 1);%zeros(1, numRays);
 totalPower = power;
 statePower = zeros(numRays*4, 1);
 
-while(numb <= 4)%totalPower > .1 * power)%size(output2, 1) > numRays/10)
+setMaxBounce = 4;
+
+while(numb <= setMaxBounce)%totalPower > .1 * power)%size(output2, 1) > numRays/10)
     output = bounce(output);
     output2 = output;%trimTooWide(output);
     totalPower = evalPower(output2);
@@ -153,7 +155,7 @@ ylabel('Ray Power (Watts)')
 %                end
                xDist(k, 1) = xDist(k, 1) + sind(anglesPhi(k,1))*trueDist;
                zDist(k, 1) = zDist(k, 1) + trueDist * ...
-                   cos(anglesPhi(k,1))*cos(angles(k,1));
+                   cosd(anglesPhi(k,1))*cosd(angles(k,1));
                
                %Updates angles
                angles(k, 1) = outAngle;   
@@ -225,7 +227,7 @@ ylabel('Ray Power (Watts)')
            trueDist = height/sind(angles(k, 1));
            xDist(k, 1) = xDist(k, 1) + sind(anglesPhi(k,1))*trueDist;
            zDist(k, 1) = zDist(k, 1) + trueDist * ...
-                   cos(anglesPhi(k,1))*cos(angles(k,1));
+                   cosd(anglesPhi(k,1))*cosd(angles(k,1));
        end
        outputRays = [angles, anglesPhi, amplitudes, numBounce, xDist, zDist];
     end
