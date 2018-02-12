@@ -36,6 +36,7 @@ public class Wave {
 		// Rough ocean
 		ocean.add(new Spectrum(0.4d * Math.sqrt(9.81d / 35.0d), 35.0d));
 		ocean.add(new Spectrum(Math.PI / 4.0f, 7.0d));
+		ocean.add(new Spectrum(Math.PI / 2.0f, 8.0f));
 		
 		// Wave components
 		double[][] wave_k = new double[105][2];
@@ -58,7 +59,7 @@ public class Wave {
 			}
 		}
 		//print_wave("calm.txt", wave_a, wave_k, wave_d);
-		print_wave("rought.txt", wave_a, wave_k, wave_d);
+		//print_wave("rought.txt", wave_a, wave_k, wave_d);
 		
 		// Generate mesh
 		float[] mesh_p = new float[3 * vc * vc];
